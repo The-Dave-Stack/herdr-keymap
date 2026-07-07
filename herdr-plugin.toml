@@ -1,0 +1,21 @@
+id = "tds.keymap"
+name = "Keymap Palette"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "List herdr keybindings in an overlay and run the ones with a CLI equivalent"
+platforms = ["linux", "macos"]
+
+[[build]]
+command = ["npm", "ci"]
+
+[[panes]]
+id = "palette"
+title = "Keybindings"
+placement = "overlay"
+command = ["node", "src/keymap.ts"]
+
+[[actions]]
+id = "open_palette"
+title = "Open keybindings palette"
+contexts = ["workspace"]
+command = ["bash", "open_palette.sh"]
