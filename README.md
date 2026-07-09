@@ -24,10 +24,14 @@ test/
 ## Install
 
 ```bash
-herdr plugin link /path/to/keymap
+herdr plugin install The-Dave-Stack/herdr-keymap
 ```
 
-Add the keybinding in `~/.config/herdr/config.toml`:
+This clones the repo and runs the build (`npm ci`) automatically. Pass
+`--yes` to skip the confirmation preview. (For hacking on a local clone
+instead, see [Local development](#local-development) below.)
+
+Then add the keybinding in `~/.config/herdr/config.toml`:
 
 ```toml
 [[keys.command]]
@@ -45,17 +49,35 @@ herdr server reload-config
 
 ### New sessions
 
-A plugin's registration is **per session** (each session has its own
+Plugin registration is **per session** (each session has its own
 `plugins.json`) — there is no `--global` on `herdr plugin` (confirmed with
 `herdr plugin --help`), and a freshly created session starts with
-`plugins: []`, inheriting nothing from other sessions (verified live). The
-`config.toml` keybinding is global (a single shared file), but without the
-link the command can't find the plugin.
+`plugins: []`, inheriting nothing from other sessions (verified live). This
+applies to both `install` and `link`. The `config.toml` keybinding is global
+(a single shared file), but without registering the plugin the command can't
+find it.
 
-For each new session, repeat the link pointing at that session:
+For each new session, repeat the install pointing at that session:
 
 ```bash
-herdr --session <name> plugin link /path/to/keymap
+herdr --session <name> plugin install The-Dave-Stack/herdr-keymap
+```
+
+### Local development
+
+To work on the plugin from a local clone, link the path instead of
+installing from GitHub:
+
+```bash
+herdr plugin link /path/to/keymap
+```
+
+After editing the manifest (`herdr-plugin.toml`) or the pane/action
+commands, unlink and relink so herdr picks up the change:
+
+```bash
+herdr plugin unlink tds.keymap
+herdr plugin link /path/to/keymap
 ```
 
 ### `prefix+m` does nothing after editing `config.toml`
