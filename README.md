@@ -4,6 +4,10 @@ A herdr plugin: shows every keybinding (defaults + your `config.toml`
 overrides) in an overlay pane, grouped by category, and runs the ones that
 have an equivalent in the herdr CLI.
 
+## Demo
+
+![keymap palette demo](docs/herdr-keymap-sample.gif)
+
 ## Structure
 
 ```
