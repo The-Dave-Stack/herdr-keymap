@@ -145,12 +145,14 @@ ask for confirmation before running.
   `open_worktree`, `remove_worktree` are assigned on preview, not empty). The
   tests only verify the table's internal consistency, not that it matches the
   actually installed channel.
-- **"Current" workspace/pane**: resolved by looking for `focused: true` via
-  `herdr workspace list` / `herdr pane list`. It is not empirically verified
-  whether, while the palette (an overlay pane) is open, that `focused` points
-  at the pane/workspace you were on before opening it or at the palette
-  itself. Test it with a non-destructive action (`zoom`, `focus_pane_*`)
-  before trusting the destructive ones.
+- **Pane-scoped actions target the originating pane, not the palette.** The
+  palette is an overlay pane, so while it is open it is itself the `focused`
+  pane — `pane split/focus/zoom/close --current` would act on the palette
+  (and splitting an overlay makes herdr ignore `--direction`, so a horizontal
+  split came out vertical). These actions instead resolve the pane you came
+  from via `HERDR_PLUGIN_CONTEXT_JSON.focused_pane_id`. Workspace/tab actions
+  still use `focused: true` from `workspace list` / `tab list`, which is
+  correct because the overlay lives in the active workspace/tab.
 - `--session` is never passed and `HERDR_SOCKET_PATH`/`HERDR_SESSION` are
   never touched — the runtime already injects the correct socket for the
   session that launched the plugin.
