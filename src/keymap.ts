@@ -51,7 +51,14 @@ async function main() {
 
         const entry = ACTIONS[name];
         if (!entry.executor) {
-          console.log(`'${name}' has no CLI equivalent (${entry.noCli}) — use the keyboard shortcut.`);
+          // Keep the palette open so the key stays readable — it grabs all
+          // terminal input, so the user must close it before pressing it.
+          const key = keys[name];
+          console.log(
+            key
+              ? `'${name}' has no CLI equivalent (${entry.noCli}). Close the palette (Esc), then press: ${key}`
+              : `'${name}' has no CLI equivalent (${entry.noCli}) and has no key bound — assign one in config.toml.`,
+          );
           continue;
         }
         try {
