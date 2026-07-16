@@ -6,7 +6,7 @@ export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "general"
 
 async function newWorkspace() {
   const label = (await input({ message: "Label (enter to skip):" })).trim();
-  const args = ["workspace", "create"];
+  const args = ["workspace", "create", "--focus"];
   if (label) args.push("--label", label);
   herdr(...args);
 }
@@ -71,14 +71,14 @@ async function switchTab() {
 
 async function newWorktree() {
   const branch = (await input({ message: "Branch (enter to skip):" })).trim();
-  const args = ["worktree", "create", "--workspace", currentWorkspaceId()];
+  const args = ["worktree", "create", "--workspace", currentWorkspaceId(), "--focus"];
   if (branch) args.push("--branch", branch);
   herdr(...args);
 }
 
 async function newTab() {
   const label = (await input({ message: "Label (enter to skip):" })).trim();
-  const args = ["tab", "create", "--workspace", currentWorkspaceId()];
+  const args = ["tab", "create", "--workspace", currentWorkspaceId(), "--focus"];
   if (label) args.push("--label", label);
   herdr(...args);
 }
