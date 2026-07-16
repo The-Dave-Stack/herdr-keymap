@@ -34,14 +34,40 @@ export function currentWorkspaceId(): string {
   return ws.workspace_id;
 }
 
-// ponytail: overlay panes may themselves count as the "focused" pane/workspace
-// while open — verify empirically once installed; if pane-scoped actions
-// (focus/split/zoom/close_pane) target this palette instead of the pane the
-// user meant, resolve the target before opening the palette instead.
 export function currentPane(): any {
   const wsId = currentWorkspaceId();
   const { panes } = herdr("pane", "list", "--workspace", wsId);
   const pane = panes.find((p: any) => p.focused);
   if (!pane) throw new Error("no focused pane found");
   return pane;
+}
+
+// The palette runs as an overlay pane, so IT is the focused pane while open —
+// `--current` (and currentPane()) resolve to the palette, not the pane the
+// user came from. Splitting the overlay makes herdr ignore --direction, so
+// pane-scoped actions (split/focus/zoom/close_pane) must target the
+// originating pane, which herdr hands us in HERDR_PLUGIN_CONTEXT_JSON (overlay
+// panes don't receive HERDR_PANE_ID).
+export function originPaneId(): string {
+  const raw = process.env.HERDR_PLUGIN_CONTEXT_JSON;
+  logLine(`ctx HERDR_PANE_ID=${process.env.HERDR_PANE_ID ?? ""} CONTEXT_JSON=${raw ?? ""}`);
+  if (raw) {
+    try {
+      const ctx = JSON.parse(raw);
+      const pid =
+        ctx?.pane?.pane_id ??
+        ctx?.focused_pane?.pane_id ??
+        ctx?.focusedPane?.pane_id ??
+        ctx?.pane_id ??
+        ctx?.focused_pane_id;
+      if (typeof pid === "string" && pid) return pid;
+    } catch {
+      // fall through to env / focused-pane fallback
+    }
+  }
+  const envPane = process.env.HERDR_PANE_ID;
+  if (envPane) return envPane;
+  // last resort — may be the overlay itself, but the ctx line above is logged
+  // so a wrong resolution is diagnosable.
+  return currentPane().pane_id;
 }

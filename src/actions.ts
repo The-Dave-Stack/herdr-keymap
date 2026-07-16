@@ -1,5 +1,5 @@
 import { confirm, input, select } from "@inquirer/prompts";
-import { currentPane, currentWorkspaceId, herdr } from "./herdr-cli.ts";
+import { currentPane, currentWorkspaceId, herdr, originPaneId } from "./herdr-cli.ts";
 
 // display order only — doesn't affect execution, just groups the palette.
 export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "general"];
@@ -97,22 +97,22 @@ async function closeTab() {
 }
 
 function focusPane(direction: string) {
-  return async () => herdr("pane", "focus", "--current", "--direction", direction);
+  return async () => herdr("pane", "focus", "--pane", originPaneId(), "--direction", direction);
 }
 
 function splitPane(direction: string) {
-  return async () => herdr("pane", "split", "--current", "--direction", direction);
+  return async () => herdr("pane", "split", "--pane", originPaneId(), "--direction", direction);
 }
 
 async function closePane() {
   if (!(await confirm({ message: "Close the current pane?", default: false }))) {
     return console.log("cancelled");
   }
-  herdr("pane", "close", currentPane().pane_id);
+  herdr("pane", "close", originPaneId());
 }
 
 async function zoomPane() {
-  herdr("pane", "zoom", "--current", "--toggle");
+  herdr("pane", "zoom", "--pane", originPaneId(), "--toggle");
 }
 
 // executor undefined = no documented CLI equivalent; noCli explains why.
