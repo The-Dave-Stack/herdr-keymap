@@ -46,28 +46,16 @@ export function currentPane(): any {
 // `--current` (and currentPane()) resolve to the palette, not the pane the
 // user came from. Splitting the overlay makes herdr ignore --direction, so
 // pane-scoped actions (split/focus/zoom/close_pane) must target the
-// originating pane, which herdr hands us in HERDR_PLUGIN_CONTEXT_JSON (overlay
-// panes don't receive HERDR_PANE_ID).
+// originating pane. herdr hands it to us in HERDR_PLUGIN_CONTEXT_JSON as
+// `focused_pane_id` (confirmed from a live invocation). NB: HERDR_PANE_ID is
+// set too, but it's the overlay's own id — do NOT use it here.
 export function originPaneId(): string {
   const raw = process.env.HERDR_PLUGIN_CONTEXT_JSON;
-  logLine(`ctx HERDR_PANE_ID=${process.env.HERDR_PANE_ID ?? ""} CONTEXT_JSON=${raw ?? ""}`);
   if (raw) {
-    try {
-      const ctx = JSON.parse(raw);
-      const pid =
-        ctx?.pane?.pane_id ??
-        ctx?.focused_pane?.pane_id ??
-        ctx?.focusedPane?.pane_id ??
-        ctx?.pane_id ??
-        ctx?.focused_pane_id;
-      if (typeof pid === "string" && pid) return pid;
-    } catch {
-      // fall through to env / focused-pane fallback
-    }
+    const pid = JSON.parse(raw).focused_pane_id;
+    if (typeof pid === "string" && pid) return pid;
   }
-  const envPane = process.env.HERDR_PANE_ID;
-  if (envPane) return envPane;
-  // last resort — may be the overlay itself, but the ctx line above is logged
-  // so a wrong resolution is diagnosable.
-  return currentPane().pane_id;
+  // Fail loud rather than fall back to the focused pane (the overlay), which
+  // would silently resurrect the wrong-target split bug.
+  throw new Error("no focused_pane_id in HERDR_PLUGIN_CONTEXT_JSON");
 }

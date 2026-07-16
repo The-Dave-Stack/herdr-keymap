@@ -100,8 +100,11 @@ function focusPane(direction: string) {
   return async () => herdr("pane", "focus", "--pane", originPaneId(), "--direction", direction);
 }
 
+// ponytail: --focus lands focus on the new pane; herdr restores the pre-overlay
+// focus when the palette closes, so if focus snaps back to the origin pane,
+// this flag is the thing to revisit (may be an unavoidable herdr behavior).
 function splitPane(direction: string) {
-  return async () => herdr("pane", "split", "--pane", originPaneId(), "--direction", direction);
+  return async () => herdr("pane", "split", "--pane", originPaneId(), "--direction", direction, "--focus");
 }
 
 async function closePane() {
