@@ -59,3 +59,15 @@ export function originPaneId(): string {
   // would silently resurrect the wrong-target split bug.
   throw new Error("no focused_pane_id in HERDR_PLUGIN_CONTEXT_JSON");
 }
+
+// cwd of the pane the user came from — so new tabs/workspaces start there
+// instead of inheriting the palette overlay's cwd (the plugin dir). Undefined
+// when unavailable, in which case callers omit --cwd and herdr picks default.
+export function originCwd(): string | undefined {
+  const raw = process.env.HERDR_PLUGIN_CONTEXT_JSON;
+  if (raw) {
+    const cwd = JSON.parse(raw).focused_pane_cwd;
+    if (typeof cwd === "string" && cwd) return cwd;
+  }
+  return undefined;
+}

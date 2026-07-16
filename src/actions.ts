@@ -1,5 +1,5 @@
 import { confirm, input, select } from "@inquirer/prompts";
-import { currentPane, currentWorkspaceId, herdr, originPaneId } from "./herdr-cli.ts";
+import { currentPane, currentWorkspaceId, herdr, originCwd, originPaneId } from "./herdr-cli.ts";
 
 // display order only — doesn't affect execution, just groups the palette.
 export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "general"];
@@ -7,6 +7,8 @@ export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "general"
 async function newWorkspace() {
   const label = (await input({ message: "Label (enter to skip):" })).trim();
   const args = ["workspace", "create", "--focus"];
+  const cwd = originCwd();
+  if (cwd) args.push("--cwd", cwd);
   if (label) args.push("--label", label);
   herdr(...args);
 }
@@ -79,6 +81,8 @@ async function newWorktree() {
 async function newTab() {
   const label = (await input({ message: "Label (enter to skip):" })).trim();
   const args = ["tab", "create", "--workspace", currentWorkspaceId(), "--focus"];
+  const cwd = originCwd();
+  if (cwd) args.push("--cwd", cwd);
   if (label) args.push("--label", label);
   herdr(...args);
 }
