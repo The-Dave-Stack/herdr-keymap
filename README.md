@@ -102,9 +102,13 @@ tds.keymap` works but `prefix+m` does nothing, this is it — not a plugin bug.
 Press `prefix+m` (by default `ctrl+b`, release, then `m`) to open the
 palette.
 
-1. Pick a category (`workspace`, `tab`, `worktree`, `pane`, `general`) —
-   each shows its command count in parentheses.
+1. Pick a category (`workspace`, `tab`, `worktree`, `pane`, `agent`,
+   `general`) — each shows its command count in parentheses.
 2. Pick a command within that category, or `❮ Back` to change category.
+
+The `agent` category is special: its entries are herdr `agent` subcommands
+(Focus agent, Rename agent), not keybindings, so they show `(cmd)` instead of
+a key. They prompt for the target agent via `herdr agent list`.
 
 Running a command (or hitting an error) closes the palette by itself — it is
 single-use; reopen with `prefix+m` to do something else. `Esc` or

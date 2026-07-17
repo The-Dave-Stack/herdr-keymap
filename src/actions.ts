@@ -2,7 +2,7 @@ import { confirm, input, select } from "@inquirer/prompts";
 import { currentPane, currentWorkspaceId, herdr, originCwd, originPaneId } from "./herdr-cli.ts";
 
 // display order only — doesn't affect execution, just groups the palette.
-export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "general"];
+export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "agent", "general"];
 
 async function newWorkspace() {
   const label = (await input({ message: "Label (enter to skip):" })).trim();
@@ -122,12 +122,45 @@ async function zoomPane() {
   herdr("pane", "zoom", "--pane", originPaneId(), "--toggle");
 }
 
+// --- agent commands: herdr `agent` subcommands, NOT keybindings, so they
+// live in their own "agent" category and carry no key (noKey below).
+async function pickAgent(message: string): Promise<string | undefined> {
+  const { agents } = herdr("agent", "list");
+  if (!agents.length) {
+    console.log("no agents in this session");
+    return undefined;
+  }
+  return select({
+    message,
+    // terminal_id is the unambiguous target (names can collide / be unset).
+    choices: agents.map((a: any) => ({
+      name: `${a.terminal_title_stripped ?? a.agent}  [${a.agent_status}]  ${a.cwd}${a.focused ? "  (focused)" : ""}`,
+      value: a.terminal_id,
+    })),
+  });
+}
+
+async function focusAgent() {
+  const target = await pickAgent("Focus agent");
+  if (target) herdr("agent", "focus", target);
+}
+
+async function renameAgent() {
+  const target = await pickAgent("Rename which agent");
+  if (!target) return;
+  const name = (await input({ message: "New agent name:" })).trim();
+  if (!name) return console.log("cancelled");
+  herdr("agent", "rename", target, name);
+}
+
 // executor undefined = no documented CLI equivalent; noCli explains why.
+// noKey = a herdr command with no keybinding (agent category), not a keymap.
 export interface ActionEntry {
   category: string;
   description: string;
   executor?: () => Promise<void>;
   noCli?: string;
+  noKey?: boolean;
 }
 
 export const ACTIONS: Record<string, ActionEntry> = {
@@ -153,6 +186,8 @@ export const ACTIONS: Record<string, ActionEntry> = {
   split_horizontal: { category: "pane", description: "Split horizontal (top/bottom)", executor: splitPane("down") },
   close_pane: { category: "pane", description: "Close current pane", executor: closePane },
   zoom: { category: "pane", description: "Zoom current pane", executor: zoomPane },
+  agent_focus: { category: "agent", description: "Focus agent", executor: focusAgent, noKey: true },
+  agent_rename: { category: "agent", description: "Rename agent", executor: renameAgent, noKey: true },
   resize_mode: { category: "pane", description: "Resize mode", noCli: "interactive mode, no CLI" },
   swap_pane_left: { category: "pane", description: "Swap pane left", noCli: "no CLI equivalent" },
   swap_pane_down: { category: "pane", description: "Swap pane down", noCli: "no CLI equivalent" },

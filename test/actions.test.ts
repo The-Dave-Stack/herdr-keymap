@@ -5,7 +5,9 @@ import { DEFAULTS } from "../src/config.ts";
 // every action in the palette must have a known default key, or a typo would
 // silently render as "(unassigned)" instead of failing loudly.
 function testAllActionsHaveADefault() {
-  const missing = Object.keys(ACTIONS).filter((name) => !(name in DEFAULTS));
+  // noKey actions (agent category) are herdr commands, not keybindings, so
+  // they intentionally have no DEFAULTS entry.
+  const missing = Object.keys(ACTIONS).filter((name) => !ACTIONS[name].noKey && !(name in DEFAULTS));
   assert.deepEqual(missing, [], `ACTIONS entries missing from DEFAULTS: ${missing}`);
 }
 
@@ -28,7 +30,15 @@ function testEveryActionBelongsToExactlyOneCategory() {
   assert.equal(sumPerCategory, total);
 }
 
+// the special agent category carries commands, not keybindings — they must
+// stay out of DEFAULTS, or they'd render a bogus key instead of "(cmd)".
+function testNoKeyActionsAreNotInDefaults() {
+  const leaked = Object.keys(ACTIONS).filter((n) => ACTIONS[n].noKey && n in DEFAULTS);
+  assert.deepEqual(leaked, [], `noKey actions must not be in DEFAULTS: ${leaked}`);
+}
+
 testAllActionsHaveADefault();
 testAllCategoriesAreKnown();
 testEveryActionBelongsToExactlyOneCategory();
+testNoKeyActionsAreNotInDefaults();
 console.log("ok");

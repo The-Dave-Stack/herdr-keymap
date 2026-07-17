@@ -4,6 +4,14 @@ All notable changes to this plugin are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versioning is
 [SemVer](https://semver.org/).
 
+## [0.3.0] - 2026-07-17
+
+### Added
+- Special `agent` category exposing herdr `agent` subcommands (Focus agent,
+  Rename agent) with an agent picker. These are commands, not keybindings, so
+  they render as `(cmd)` and carry no key. Powered by `herdr agent
+  list/focus/rename` (target = `terminal_id`).
+
 ## [0.2.1] - 2026-07-17
 
 ### Changed

@@ -29,7 +29,7 @@ async function pickAction(category: string, keys: Record<string, string>): Promi
       new Separator(),
       ...namesInCategory.map((n) => {
         const entry = ACTIONS[n];
-        const key = keys[n] || "(unassigned)";
+        const key = entry.noKey ? "(cmd)" : keys[n] || "(unassigned)";
         const tag = entry.executor ? "" : `  [${entry.noCli}]`;
         return { name: `${key.padEnd(22)} ${entry.description}${tag}`, value: n };
       }),
