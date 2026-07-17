@@ -4,6 +4,13 @@ All notable changes to this plugin are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versioning is
 [SemVer](https://semver.org/).
 
+## [0.5.1] - 2026-07-17
+
+### Fixed
+- Banner box was skewed on its first line by inquirer's `? ` prompt prefix.
+  Blank the prefix on the banner screens and lead with a newline so the box
+  sits flush at column 0.
+
 ## [0.5.0] - 2026-07-17
 
 ### Added

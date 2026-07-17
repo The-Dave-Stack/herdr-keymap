@@ -28,6 +28,14 @@ function buildHeader(): string {
   return `╭${bar}╮\n│ ${title} │\n╰${bar}╯`;
 }
 
+// inquirer renders the prompt as `${prefix} ${message}`, which shoves the
+// banner's first line right and breaks the box. Blank the prefix and lead
+// with a newline so every banner line sits flush at column 0.
+export const NAV_THEME = { prefix: "" };
+export function headed(text: string): string {
+  return `\n${HEADER}\n\n${text}`;
+}
+
 // herdr has no documented way for a pane command to redirect its own stdout
 // into "herdr plugin log list" (that only captures build failures) — so we
 // keep our own log file instead of printing results to the visible pane.

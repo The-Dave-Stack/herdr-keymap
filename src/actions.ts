@@ -1,5 +1,5 @@
 import { Separator, confirm, input, select } from "@inquirer/prompts";
-import { HEADER, currentPane, currentWorkspaceId, herdr, originCwd, originPaneId } from "./herdr-cli.ts";
+import { NAV_THEME, currentPane, currentWorkspaceId, headed, herdr, originCwd, originPaneId } from "./herdr-cli.ts";
 
 // display order only — doesn't affect execution, just groups the palette.
 export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "agent", "general"];
@@ -47,7 +47,8 @@ async function workspacePicker() {
   const { workspaces } = herdr("workspace", "list");
   const sorted = [...workspaces].sort((a: any, b: any) => a.number - b.number);
   const id = await select({
-    message: `${HEADER}\n\nGo to workspace`,
+    message: headed("Go to workspace"),
+    theme: NAV_THEME,
     choices: [
       { name: "❮ Back", value: BACK },
       new Separator(),
@@ -76,7 +77,8 @@ async function switchTab() {
   const { tabs } = herdr("tab", "list", "--workspace", wsId);
   const sorted = [...tabs].sort((a: any, b: any) => a.number - b.number);
   const id = await select({
-    message: `${HEADER}\n\nGo to tab`,
+    message: headed("Go to tab"),
+    theme: NAV_THEME,
     choices: [
       { name: "❮ Back", value: BACK },
       new Separator(),
@@ -155,7 +157,8 @@ async function pickAgent(message: string): Promise<string> {
   const { workspaces } = herdr("workspace", "list");
   const wsLabel = new Map(workspaces.map((w: any) => [w.workspace_id, w.label ?? w.workspace_id]));
   const value = await select({
-    message: `${HEADER}\n\n${message}`,
+    message: headed(message),
+    theme: NAV_THEME,
     choices: [
       { name: "❮ Back", value: BACK },
       new Separator(),
