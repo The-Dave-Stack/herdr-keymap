@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { ACTIONS, CATEGORY_ORDER } from "../src/actions.ts";
 import { DEFAULTS } from "../src/config.ts";
+import { HEADER } from "../src/herdr-cli.ts";
 
 // every action in the palette must have a known default key, or a typo would
 // silently render as "(unassigned)" instead of failing loudly.
@@ -37,8 +38,17 @@ function testNoKeyActionsAreNotInDefaults() {
   assert.deepEqual(leaked, [], `noKey actions must not be in DEFAULTS: ${leaked}`);
 }
 
+// the header banner is a 3-line box naming the plugin (version filled in at
+// runtime from herdr-plugin.toml; falls back to a bare name in tests).
+function testHeaderIsABanner() {
+  const lines = HEADER.split("\n");
+  assert.equal(lines.length, 3, `header should be a 3-line box: ${JSON.stringify(HEADER)}`);
+  assert.match(lines[1], /keymap/i, `header should name the plugin: ${lines[1]}`);
+}
+
 testAllActionsHaveADefault();
 testAllCategoriesAreKnown();
 testEveryActionBelongsToExactlyOneCategory();
 testNoKeyActionsAreNotInDefaults();
+testHeaderIsABanner();
 console.log("ok");

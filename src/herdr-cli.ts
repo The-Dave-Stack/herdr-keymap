@@ -1,6 +1,32 @@
 import { execFileSync } from "node:child_process";
-import { appendFileSync } from "node:fs";
+import { appendFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import * as TOML from "smol-toml";
+
+// Static banner (name + version, read from herdr-plugin.toml at runtime) that
+// keymap.ts prepends to the navigation screens so it stays visible while you
+// move around the palette. Falls back to a bare name outside a plugin run.
+export const HEADER = buildHeader();
+function buildHeader(): string {
+  let name = "keymap";
+  let version = "";
+  const root = process.env.HERDR_PLUGIN_ROOT;
+  if (root) {
+    try {
+      const toml = TOML.parse(readFileSync(join(root, "herdr-plugin.toml"), "utf8")) as {
+        name?: string;
+        version?: string;
+      };
+      if (toml.name) name = toml.name;
+      if (toml.version) version = toml.version;
+    } catch {
+      // fall back to defaults
+    }
+  }
+  const title = version ? `${name} · v${version}` : name;
+  const bar = "─".repeat(title.length + 2);
+  return `╭${bar}╮\n│ ${title} │\n╰${bar}╯`;
+}
 
 // herdr has no documented way for a pane command to redirect its own stdout
 // into "herdr plugin log list" (that only captures build failures) — so we

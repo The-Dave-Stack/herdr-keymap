@@ -100,7 +100,8 @@ tds.keymap` works but `prefix+m` does nothing, this is it — not a plugin bug.
 ## Usage
 
 Press `prefix+m` (by default `ctrl+b`, release, then `m`) to open the
-palette.
+palette. Every navigation screen is headed by a banner with the plugin name
+and version (read from `herdr-plugin.toml` at runtime).
 
 1. Pick a category (`workspace`, `tab`, `worktree`, `pane`, `agent`,
    `general`) — each shows its command count in parentheses.

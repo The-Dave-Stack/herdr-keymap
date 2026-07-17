@@ -4,6 +4,13 @@ All notable changes to this plugin are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versioning is
 [SemVer](https://semver.org/).
 
+## [0.5.0] - 2026-07-17
+
+### Added
+- Banner header (plugin name + version, read from `herdr-plugin.toml` at
+  runtime) shown atop the navigation screens — category list, command list,
+  and the workspace/tab/agent pickers — so it stays visible while navigating.
+
 ## [0.4.0] - 2026-07-17
 
 ### Changed

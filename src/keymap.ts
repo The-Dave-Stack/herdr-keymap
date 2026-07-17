@@ -2,13 +2,14 @@ import { ExitPromptError } from "@inquirer/core";
 import { Separator, select } from "@inquirer/prompts";
 import { ACTIONS, CATEGORY_ORDER, PaletteBack } from "./actions.ts";
 import { loadEffectiveKeys } from "./config.ts";
+import { HEADER } from "./herdr-cli.ts";
 
 const BACK = "__back__";
 const EXIT = "__exit__";
 
 async function pickCategory(): Promise<string> {
   return select({
-    message: "Category",
+    message: `${HEADER}\n\nCategory`,
     choices: [
       { name: "❯ Exit", value: EXIT },
       new Separator(),
@@ -23,7 +24,7 @@ async function pickCategory(): Promise<string> {
 async function pickAction(category: string, keys: Record<string, string>): Promise<string> {
   const namesInCategory = Object.keys(ACTIONS).filter((n) => ACTIONS[n].category === category);
   return select({
-    message: `[${category}] commands (${namesInCategory.length})`,
+    message: `${HEADER}\n\n[${category}] commands (${namesInCategory.length})`,
     choices: [
       { name: "❮ Back", value: BACK },
       new Separator(),
