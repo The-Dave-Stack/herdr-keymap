@@ -10,7 +10,7 @@ export class PaletteBack extends Error {}
 const BACK = "__back__";
 
 async function newWorkspace() {
-  const label = (await input({ message: "Label (enter to skip):" })).trim();
+  const label = (await input({ message: "Label (empty to skip, Esc to cancel):" })).trim();
   const args = ["workspace", "create", "--focus"];
   const cwd = originCwd();
   if (cwd) args.push("--cwd", cwd);
@@ -19,14 +19,14 @@ async function newWorkspace() {
 }
 
 async function renameWorkspace() {
-  const label = (await input({ message: "New name:" })).trim();
-  if (!label) return console.log("cancelled");
+  const label = (await input({ message: "New name (empty to cancel):" })).trim();
+  if (!label) throw new PaletteBack();
   herdr("workspace", "rename", currentWorkspaceId(), label);
 }
 
 async function closeWorkspace() {
   if (!(await confirm({ message: "Close the current workspace?", default: false }))) {
-    return console.log("cancelled");
+    throw new PaletteBack();
   }
   herdr("workspace", "close", currentWorkspaceId());
 }
@@ -74,22 +74,31 @@ async function navigateTab(direction: 1 | -1) {
 async function switchTab() {
   const wsId = currentWorkspaceId();
   const { tabs } = herdr("tab", "list", "--workspace", wsId);
-  const numStr = (await input({ message: "Tab number:" })).trim();
-  const num = Number(numStr);
-  const tab = tabs.find((t: any) => t.number === num);
-  if (!tab) return console.log(`no tab number ${num}`);
-  herdr("tab", "focus", tab.tab_id);
+  const sorted = [...tabs].sort((a: any, b: any) => a.number - b.number);
+  const id = await select({
+    message: "Go to tab",
+    choices: [
+      { name: "❮ Back", value: BACK },
+      new Separator(),
+      ...sorted.map((t: any) => ({
+        name: `${t.number}. ${t.label ?? t.tab_id}${t.focused ? "  (current)" : ""}`,
+        value: t.tab_id,
+      })),
+    ],
+  });
+  if (id === BACK) throw new PaletteBack();
+  herdr("tab", "focus", id);
 }
 
 async function newWorktree() {
-  const branch = (await input({ message: "Branch (enter to skip):" })).trim();
+  const branch = (await input({ message: "Branch (empty to skip, Esc to cancel):" })).trim();
   const args = ["worktree", "create", "--workspace", currentWorkspaceId(), "--focus"];
   if (branch) args.push("--branch", branch);
   herdr(...args);
 }
 
 async function newTab() {
-  const label = (await input({ message: "Label (enter to skip):" })).trim();
+  const label = (await input({ message: "Label (empty to skip, Esc to cancel):" })).trim();
   const args = ["tab", "create", "--workspace", currentWorkspaceId(), "--focus"];
   const cwd = originCwd();
   if (cwd) args.push("--cwd", cwd);
@@ -98,14 +107,14 @@ async function newTab() {
 }
 
 async function renameTab() {
-  const label = (await input({ message: "New tab name:" })).trim();
-  if (!label) return console.log("cancelled");
+  const label = (await input({ message: "New tab name (empty to cancel):" })).trim();
+  if (!label) throw new PaletteBack();
   herdr("tab", "rename", currentPane().tab_id, label);
 }
 
 async function closeTab() {
   if (!(await confirm({ message: "Close the current tab?", default: false }))) {
-    return console.log("cancelled");
+    throw new PaletteBack();
   }
   herdr("tab", "close", currentPane().tab_id);
 }
@@ -123,7 +132,7 @@ function splitPane(direction: string) {
 
 async function closePane() {
   if (!(await confirm({ message: "Close the current pane?", default: false }))) {
-    return console.log("cancelled");
+    throw new PaletteBack();
   }
   herdr("pane", "close", originPaneId());
 }
@@ -167,7 +176,7 @@ async function focusAgent() {
 
 async function renameAgent() {
   const target = await pickAgent("Rename which agent");
-  const name = (await input({ message: "New agent name:" })).trim();
+  const name = (await input({ message: "New agent name (empty to cancel):" })).trim();
   if (!name) throw new PaletteBack();
   herdr("agent", "rename", target, name);
 }

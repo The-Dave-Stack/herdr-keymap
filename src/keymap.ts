@@ -64,7 +64,9 @@ async function main() {
         try {
           await entry.executor();
         } catch (err) {
-          if (err instanceof PaletteBack) continue; // "❮ Back" — back to the action list
+          // "❮ Back", an empty/declined prompt, or Esc/Ctrl+C inside a sub-prompt
+          // all mean "cancel this action" — return to the action list, don't exit.
+          if (err instanceof PaletteBack || err instanceof ExitPromptError) continue;
           console.log(`error: ${(err as Error).message}`);
         }
         return; // one command per palette open — reopen (prefix+m) for another

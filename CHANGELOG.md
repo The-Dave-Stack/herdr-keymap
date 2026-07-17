@@ -4,6 +4,17 @@ All notable changes to this plugin are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versioning is
 [SemVer](https://semver.org/).
 
+## [0.4.0] - 2026-07-17
+
+### Changed
+- Unified cancellation: any way you back out of an action (a `❮ Back` choice,
+  an empty rename, declining a close confirmation, or `Esc`/`Ctrl+C` inside a
+  prompt) now returns to the action list without running anything — no more
+  forced `Ctrl+C` that dropped the whole palette. The palette only closes via
+  `❯ Exit` / `Esc` at the category screen, or after a command runs.
+- `switch_tab` is now a tab picker (with `❮ Back`) instead of a
+  type-the-number prompt.
+
 ## [0.3.1] - 2026-07-17
 
 ### Added

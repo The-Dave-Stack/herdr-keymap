@@ -114,9 +114,12 @@ workspaces, not just the active one — each labelled with its workspace.
 `❮ Back` cancels the pick and returns to the action list.
 
 Running a command (or hitting an error) closes the palette by itself — it is
-single-use; reopen with `prefix+m` to do something else. `Esc` or
-`Ctrl+C`/`Ctrl+D` cancel cleanly at any point (via `@inquirer/prompts`,
-which throws `ExitPromptError` — caught in `keymap.ts`).
+single-use; reopen with `prefix+m` to do something else.
+
+Cancelling never forces `Ctrl+C`: any way you back out of an action —
+a `❮ Back` choice, an empty rename, declining a close confirmation, or `Esc`
+inside a prompt — returns you to the action list without running anything.
+To close the palette, use `❯ Exit` (or `Esc`) at the category screen.
 
 There is no on-screen output of the result (herdr has no documented way for
 the pane to redirect its own stdout to `herdr plugin log list` — that only
