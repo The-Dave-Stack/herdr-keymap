@@ -1,6 +1,6 @@
 import { ExitPromptError } from "@inquirer/core";
 import { Separator, select } from "@inquirer/prompts";
-import { ACTIONS, CATEGORY_ORDER } from "./actions.ts";
+import { ACTIONS, CATEGORY_ORDER, PaletteBack } from "./actions.ts";
 import { loadEffectiveKeys } from "./config.ts";
 
 const BACK = "__back__";
@@ -64,6 +64,7 @@ async function main() {
         try {
           await entry.executor();
         } catch (err) {
+          if (err instanceof PaletteBack) continue; // "❮ Back" — back to the action list
           console.log(`error: ${(err as Error).message}`);
         }
         return; // one command per palette open — reopen (prefix+m) for another

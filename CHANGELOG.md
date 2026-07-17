@@ -4,6 +4,16 @@ All notable changes to this plugin are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/); versioning is
 [SemVer](https://semver.org/).
 
+## [0.3.1] - 2026-07-17
+
+### Added
+- `❮ Back` choice in the agent and workspace pickers — cancel a selection and
+  return to the action list without Ctrl+C.
+
+### Changed
+- Agent picker labels each agent with its workspace (was the raw cwd), so the
+  full-session list (a herdr session spans all its workspaces) is legible.
+
 ## [0.3.0] - 2026-07-17
 
 ### Added

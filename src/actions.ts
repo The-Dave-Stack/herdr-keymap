@@ -1,8 +1,13 @@
-import { confirm, input, select } from "@inquirer/prompts";
+import { Separator, confirm, input, select } from "@inquirer/prompts";
 import { currentPane, currentWorkspaceId, herdr, originCwd, originPaneId } from "./herdr-cli.ts";
 
 // display order only — doesn't affect execution, just groups the palette.
 export const CATEGORY_ORDER = ["workspace", "tab", "worktree", "pane", "agent", "general"];
+
+// Thrown by a picker's "❮ Back" choice (or a cancel) to abort the action and
+// return to the action list — caught in keymap.ts. Avoids forcing Ctrl+C.
+export class PaletteBack extends Error {}
+const BACK = "__back__";
 
 async function newWorkspace() {
   const label = (await input({ message: "Label (enter to skip):" })).trim();
@@ -43,11 +48,16 @@ async function workspacePicker() {
   const sorted = [...workspaces].sort((a: any, b: any) => a.number - b.number);
   const id = await select({
     message: "Go to workspace",
-    choices: sorted.map((w: any) => ({
-      name: `${w.number}. ${w.label ?? w.workspace_id}${w.focused ? "  (current)" : ""}`,
-      value: w.workspace_id,
-    })),
+    choices: [
+      { name: "❮ Back", value: BACK },
+      new Separator(),
+      ...sorted.map((w: any) => ({
+        name: `${w.number}. ${w.label ?? w.workspace_id}${w.focused ? "  (current)" : ""}`,
+        value: w.workspace_id,
+      })),
+    ],
   });
+  if (id === BACK) throw new PaletteBack();
   herdr("workspace", "focus", id);
 }
 
@@ -124,32 +134,41 @@ async function zoomPane() {
 
 // --- agent commands: herdr `agent` subcommands, NOT keybindings, so they
 // live in their own "agent" category and carry no key (noKey below).
-async function pickAgent(message: string): Promise<string | undefined> {
+// Lists every agent in the CURRENT herdr session (a session spans all its
+// workspaces, not just the active one), labelled with its workspace so a long
+// list stays legible. Throws PaletteBack on "❮ Back" or when there are none.
+async function pickAgent(message: string): Promise<string> {
   const { agents } = herdr("agent", "list");
   if (!agents.length) {
     console.log("no agents in this session");
-    return undefined;
+    throw new PaletteBack();
   }
-  return select({
+  const { workspaces } = herdr("workspace", "list");
+  const wsLabel = new Map(workspaces.map((w: any) => [w.workspace_id, w.label ?? w.workspace_id]));
+  const value = await select({
     message,
-    // terminal_id is the unambiguous target (names can collide / be unset).
-    choices: agents.map((a: any) => ({
-      name: `${a.terminal_title_stripped ?? a.agent}  [${a.agent_status}]  ${a.cwd}${a.focused ? "  (focused)" : ""}`,
-      value: a.terminal_id,
-    })),
+    choices: [
+      { name: "❮ Back", value: BACK },
+      new Separator(),
+      // terminal_id is the unambiguous target (names can collide / be unset).
+      ...agents.map((a: any) => ({
+        name: `${a.terminal_title_stripped ?? a.agent}  [${a.agent_status}]  ${wsLabel.get(a.workspace_id) ?? a.workspace_id}${a.focused ? "  (focused)" : ""}`,
+        value: a.terminal_id,
+      })),
+    ],
   });
+  if (value === BACK) throw new PaletteBack();
+  return value;
 }
 
 async function focusAgent() {
-  const target = await pickAgent("Focus agent");
-  if (target) herdr("agent", "focus", target);
+  herdr("agent", "focus", await pickAgent("Focus agent"));
 }
 
 async function renameAgent() {
   const target = await pickAgent("Rename which agent");
-  if (!target) return;
   const name = (await input({ message: "New agent name:" })).trim();
-  if (!name) return console.log("cancelled");
+  if (!name) throw new PaletteBack();
   herdr("agent", "rename", target, name);
 }
 

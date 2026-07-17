@@ -108,7 +108,10 @@ palette.
 
 The `agent` category is special: its entries are herdr `agent` subcommands
 (Focus agent, Rename agent), not keybindings, so they show `(cmd)` instead of
-a key. They prompt for the target agent via `herdr agent list`.
+a key. They prompt for the target agent via `herdr agent list`, which lists
+every agent in the current herdr session — a session spans all its
+workspaces, not just the active one — each labelled with its workspace.
+`❮ Back` cancels the pick and returns to the action list.
 
 Running a command (or hitting an error) closes the palette by itself — it is
 single-use; reopen with `prefix+m` to do something else. `Esc` or
